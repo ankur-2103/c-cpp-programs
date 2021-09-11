@@ -35,7 +35,6 @@ bool isSafe(int **arr, int x, int y, int n)
         col++;
     }
 
-    // cout << x << " " << y << endl;
     return true;
 }
 
