@@ -1,61 +1,88 @@
-// Merging two sorted arrays with O(1)
-// extra space
-#include <bits/stdc++.h>
-using namespace std;
+#include <stdio.h>
+#include <stdlib.h>
 
-// Function to find next gap.
-int nextGap(int gap)
+/* A binary tree tNode has data, a pointer to left child
+and a pointer to right child */
+struct tNode {
+	int data;
+	struct tNode* left;
+	struct tNode* right;
+};
+
+/* Function to traverse the binary tree without recursion
+and without stack */
+void MorrisTraversal(struct tNode* root)
 {
-    if (gap <= 1)
-        return 0;
-    return (gap / 2) + (gap % 2);
+	struct tNode *current, *pre;
+
+	if (root == NULL)
+		return;
+
+	current = root;
+	while (current != NULL) {
+
+		if (current->left == NULL) {
+			printf("%d ", current->data);
+			current = current->right;
+		}
+		else {
+
+			/* Find the inorder predecessor of current */
+			pre = current->left;
+			while (pre->right != NULL
+				&& pre->right != current)
+				pre = pre->right;
+
+			/* Make current as the right child of its
+			inorder predecessor */
+			if (pre->right == NULL) {
+				pre->right = current;
+				current = current->left;
+			}
+
+			/* Revert the changes made in the 'if' part to
+			restore the original tree i.e., fix the right
+			child of predecessor */
+			else {
+				pre->right = NULL;
+				printf("%d ", current->data);
+				current = current->right;
+			} /* End of if condition pre->right == NULL */
+		} /* End of if condition current->left == NULL*/
+	} /* End of while */
 }
 
-void merge(int* arr1, int* arr2, int n, int m)
+/* UTILITY FUNCTIONS */
+/* Helper function that allocates a new tNode with the
+given data and NULL left and right pointers. */
+struct tNode* newtNode(int data)
 {
-    int i, j, gap = n + m;
-    for (gap = nextGap(gap); gap > 0; gap = nextGap(gap)) 
-    {
-        // comparing elements in the first array.
-        for (i = 0; i + gap < n; i++)
-            if (arr1[i] > arr1[i + gap])
-                swap(arr1[i], arr1[i + gap]);
+	struct tNode* node = new tNode;
+	node->data = data;
+	node->left = NULL;
+	node->right = NULL;
 
-        // comparing elements in both arrays.
-        for (j = gap > n ? gap - n : 0;      i < n && j < m;     i++, j++)
-            if (arr1[i] > arr2[j]){
-                swap(arr1[i], arr2[j]);
-            }
-
-        if (j < m) {
-            // comparing elements in the second array.
-            for (j = 0; j + gap < m; j++){
-                if (arr2[j] > arr2[j + gap]){
-                    swap(arr2[j], arr2[j + gap]);
-                }
-            }
-        }
-    }
+	return (node);
 }
 
-// Driver code
+/* Driver program to test above functions*/
 int main()
 {
-    int a1[] = { 10, 27, 38, 43, 82 };
-    int a2[] = { 3, 9 };
-    int n = sizeof(a1) / sizeof(int);
-    int m = sizeof(a2) / sizeof(int);
 
-    // Function Call
-    merge(a1, a2, n, m);
+	/* Constructed binary tree is
+			1
+		/ \
+		2	 3
+	/ \
+	4	 5
+*/
+	struct tNode* root = newtNode(1);
+	root->left = newtNode(2);
+	root->right = newtNode(3);
+	root->left->left = newtNode(4);
+	root->left->right = newtNode(5);
 
-    printf("First Array: ");
-    for (int i = 0; i < n; i++)
-        printf("%d ", a1[i]);
+	MorrisTraversal(root);
 
-    printf("\nSecond Array: ");
-    for (int i = 0; i < m; i++)
-        printf("%d ", a2[i]);
-    printf("\n");
-    return 0;
+	return 0;
 }
